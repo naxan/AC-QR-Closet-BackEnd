@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const DB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017";
+const DB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/ac-qr-closet";
 
 mongoose
   .connect(DB_URI, {
