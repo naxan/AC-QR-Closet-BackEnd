@@ -21,6 +21,7 @@ const routes = require("./routes");
 
 // MIDDLEWARE
 app.use(bodyParser.json());
+app.use(cors(corsOptions));
 
 app.use(
   session({

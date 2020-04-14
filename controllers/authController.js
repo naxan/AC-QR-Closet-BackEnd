@@ -49,8 +49,6 @@ const register = (req, res) => {
 };
 
 const login = (req, res) => {
-  // Verify req.body Is Not Empty
-
   db.User.findOne({ username: req.body.username }, (err, foundUser) => {
     if (err)
       return res
@@ -64,8 +62,7 @@ const login = (req, res) => {
         .json({ status: 400, message: "Invalid credentials" });
     }
 
-    // Compare Password Sent Password and foundUser Password
-    // Hash the req.body.password (supplied password)
+    // Compare sent password and foundUser password
     bcrypt.compare(req.body.password, foundUser.password, (err, isMatch) => {
       if (err)
         return res.status(400).json({
@@ -77,9 +74,7 @@ const login = (req, res) => {
         // create a session and respond
         const currentUser = {
           _id: foundUser._id,
-          firstName: foundUser.firstName,
-          lastName: foundUser.lastName,
-          email: foundUser.email,
+          username: foundUser.username,
         };
 
         // Create a new session
@@ -96,10 +91,6 @@ const login = (req, res) => {
         });
       }
     });
-
-    // If Passwords Match, Create Session and Respond with 200
-
-    // If Passwords Do Not Match, Respond with 400
   });
 };
 
