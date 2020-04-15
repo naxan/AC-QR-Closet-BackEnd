@@ -15,7 +15,7 @@ const index = (req, res) => {
 };
 
 const show = (req, res) => {
-  db.User.find(req.params.id)
+  db.User.findById(req.params.userId)
     .populate("createdPatterns", "title textCode image")
     .exec((err, foundUser) => {
       if (err)
@@ -60,12 +60,10 @@ const update = (req, res) => {
 const destroy = (req, res) => {
   db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
     if (err)
-      return res
-        .status(400)
-        .json({
-          status: 400,
-          error: "Something went wrong, please try again.",
-        });
+      return res.status(400).json({
+        status: 400,
+        error: "Something went wrong, please try again.",
+      });
 
     res.json(deletedUser);
   });
