@@ -7,6 +7,7 @@ const PatternSchema = new Schema({
     required: true,
   },
   textCode: String,
+  description: String,
   image: {
     type: String,
     required: true,

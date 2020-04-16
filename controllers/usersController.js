@@ -2,7 +2,7 @@ const db = require("../models");
 
 const index = (req, res) => {
   db.User.find({})
-    .populate("createdPatterns", "title textCode image")
+    .populate("createdPatterns", "title description textCode image")
     .exec((err, allUsers) => {
       if (err)
         return res.status(400).json({
@@ -16,7 +16,7 @@ const index = (req, res) => {
 
 const show = (req, res) => {
   db.User.findById(req.params.userId)
-    .populate("createdPatterns", "title textCode image")
+    .populate("createdPatterns", "title description textCode image")
     .exec((err, foundUser) => {
       if (err)
         return res.status(400).json({
