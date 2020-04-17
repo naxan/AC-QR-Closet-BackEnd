@@ -2,6 +2,7 @@ const express = require("express");
 const Image = require("../models/Image");
 const ImageRouter = express.Router();
 const multer = require("multer");
+const db = require("../models");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -30,22 +31,19 @@ const upload = multer({
 });
 
 ImageRouter.post("/upload", upload.single("imageData"), (req, res, next) => {
-  console.log(req.body);
   const newImage = new Image({
     imageName: req.body.imageName,
     imageData: req.file.path,
   });
 
-  newImage
-    .save()
-    .then((result) => {
-      console.log(result);
-      res.status(200).json({
-        success: true,
-        document: result,
+  db.Image.create(newImage, (err, image) => {
+    if (err)
+      return res.status(400).json({
+        status: 400,
+        error: "Something went wrong, please try again.",
       });
-    })
-    .catch((err) => next(err));
+    res.send(image);
+  });
 });
 
 module.exports = ImageRouter;
