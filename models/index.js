@@ -15,4 +15,6 @@ mongoose
 module.exports = {
   User: require("./User"),
   Pattern: require("./Pattern"),
+  Photo: require("./Photo"),
+  // Image: require("./Image"),
 };

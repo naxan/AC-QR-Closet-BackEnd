@@ -23,6 +23,8 @@ const routes = require("./routes");
 app.use(bodyParser.json());
 app.use(cors(corsOptions));
 
+app.use("/uploads", express.static("uploads"));
+
 app.use(
   session({
     store: new MongoStore({
@@ -42,6 +44,9 @@ app.use("/api/v1", routes.api);
 
 // AUTH ROUTES
 app.use("/auth", routes.auth);
+
+// image routes
+app.use("/image", routes.image);
 
 // START SERVER
 app.listen(PORT, () => console.log(`Server is running at localhost:${PORT}`));
