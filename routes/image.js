@@ -1,5 +1,5 @@
 const express = require("express");
-const Image = require("../models/Photo");
+const Image = require("../models/Image");
 const ImageRouter = express.Router();
 const multer = require("multer");
 
@@ -29,27 +29,23 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-ImageRouter.post(
-  "/uploadmulter",
-  upload.single("imageData"),
-  (req, res, next) => {
-    console.log(req.body);
-    const newImage = new Image({
-      imageName: req.body.imageName,
-      imageData: req.file.path,
-    });
+ImageRouter.post("/upload", upload.single("imageData"), (req, res, next) => {
+  console.log(req.body);
+  const newImage = new Image({
+    imageName: req.body.imageName,
+    imageData: req.file.path,
+  });
 
-    newImage
-      .save()
-      .then((result) => {
-        console.log(result);
-        res.status(200).json({
-          success: true,
-          document: result,
-        });
-      })
-      .catch((err) => next(err));
-  }
-);
+  newImage
+    .save()
+    .then((result) => {
+      console.log(result);
+      res.status(200).json({
+        success: true,
+        document: result,
+      });
+    })
+    .catch((err) => next(err));
+});
 
 module.exports = ImageRouter;
