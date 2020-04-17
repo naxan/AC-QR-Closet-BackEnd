@@ -19,4 +19,9 @@ const PatternSchema = new Schema({
   },
 });
 
+// PatternSchema.pre("remove", function (next) {
+//   db.Image.remove({ _id: this.image._id }).exec();
+//   next();
+// });
+
 module.exports = mongoose.model("Pattern", PatternSchema);

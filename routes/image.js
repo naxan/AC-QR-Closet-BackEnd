@@ -46,4 +46,42 @@ ImageRouter.post("/upload", upload.single("imageData"), (req, res, next) => {
   });
 });
 
+ImageRouter.get("/:imageId", (req, res) => {
+  db.Image.findById(req.params.imageId, (err, foundImage) => {
+    if (err)
+      return res.status(400).json({
+        status: 400,
+        error: "Something went wrong, please try again.",
+      });
+
+    res.json(foundImage);
+  });
+});
+
+// ImageRouter.get("/all", (req, res) => {
+//   db.Image.find({}).exec((err, allImages) => {
+//     if (err) {
+//       console.log(err);
+//       return res.status(400).json({
+//         status: 400,
+//         error: "Something went wrong, please try again.",
+//       });
+//     }
+
+//     res.json(allImages);
+//   });
+// });
+
+ImageRouter.delete("/:imageId", (req, res) => {
+  db.Image.findByIdAndDelete(req.params.imageId, (err, deletedImage) => {
+    if (err)
+      return res.status(400).json({
+        status: 400,
+        error: "Something went wrong, please try again.",
+      });
+
+    res.json(deletedImage);
+  });
+});
+
 module.exports = ImageRouter;
