@@ -84,7 +84,6 @@ const login = (req, res) => {
         res.status(200).json({ status: 200, user: currentUser });
       } else {
         // respond with error
-        console.log(req.body.password, foundUser.password);
         res.status(401).json({
           status: 401,
           message: "Unauthorized, please login and try again.",
