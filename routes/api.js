@@ -8,6 +8,7 @@ router.get("/users/:userId", ctrl.users.show);
 router.post("/users", ctrl.users.create);
 router.put("/users/:userId", ctrl.users.update);
 router.delete("/users/:userId", ctrl.users.destroy);
+router.post("/users/check-username", ctrl.users.checkUsername);
 
 // PATTERN ROUTES
 router.get("/patterns", ctrl.patterns.index);

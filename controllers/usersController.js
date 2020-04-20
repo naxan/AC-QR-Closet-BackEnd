@@ -69,10 +69,34 @@ const destroy = (req, res) => {
   });
 };
 
+const checkUsername = (req, res) => {
+  db.User.find({ username: req.body.username }, (err, foundUser) => {
+    if (err)
+      return res.status(400).json({
+        status: 400,
+        ok: false,
+        message: "Something went wrong, please try again",
+      });
+
+    if (foundUser) {
+      return res.status(400).json({
+        status: 400,
+        ok: false,
+        message: "Username already taken",
+      });
+    }
+    res.status(200).json({
+      status: 200,
+      ok: true,
+    });
+  });
+};
+
 module.exports = {
   index,
   show,
   create,
   update,
   destroy,
+  checkUsername,
 };
