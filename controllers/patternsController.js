@@ -1,4 +1,5 @@
 const db = require("../models");
+const fs = require("fs");
 
 const index = (req, res) => {
   db.Pattern.find({})
@@ -71,14 +72,41 @@ const update = (req, res) => {
 };
 
 const destroy = (req, res) => {
-  db.Pattern.findByIdAndDelete(req.params.patternId, (err, deletedPattern) => {
+  db.Pattern.findById(req.params.patternId, (err, foundPattern) => {
     if (err)
       return res.status(400).json({
         status: 400,
         error: "Something went wrong, please try again.",
       });
 
-    res.json(deletedPattern);
+    db.Image.findByIdAndDelete(foundPattern.image._id, (err, deletedImage) => {
+      if (err)
+        return res.status(400).json({
+          status: 400,
+          error: "Something went wrong, please try again.",
+        });
+
+      fs.unlink(foundPattern.image.imageData, (err) => {
+        if (err)
+          return res.status(400).json({
+            status: 400,
+            error: "Something went wrong, please try again.",
+          });
+      });
+
+      db.Pattern.findByIdAndRemove(
+        req.params.patternId,
+        (err, deletedPattern) => {
+          if (err)
+            return res.status(400).json({
+              status: 400,
+              error: "Something went wrong, please try again.",
+            });
+
+          res.json(deletedPattern);
+        }
+      );
+    });
   });
 };
 
