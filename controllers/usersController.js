@@ -1,4 +1,5 @@
 const db = require("../models");
+const fs = require("fs");
 
 const index = (req, res) => {
   db.User.find({})
@@ -41,6 +42,54 @@ const create = (req, res) => {
 };
 
 const update = (req, res) => {
+  // if (req.body.profilePic) {
+  // db.User.findById(req.params.userId, (err, foundUser) => {
+  //   if (err)
+  //     return res.status(400).json({
+  //       status: 400,
+  //       error: "Something went wrong, please try again.",
+  //     });
+
+  //   fs.unlink(foundUser.profilePic.imageData, (err) => {
+  //     if (err)
+  //       return res.status(400).json({
+  //         status: 400,
+  //         error: "Something went wrong, please try again.",
+  //       });
+  //     console.log("picture unlinked");
+  //   });
+
+  //   db.Image.findByIdAndDelete(foundUser.profilePic._id, (err) => {
+  //     if (err)
+  //       return res.status(400).json({
+  //         status: 400,
+  //         error: "Something went wrong, please try again.",
+  //       });
+  //     console.log("picture deleted");
+
+  //     db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
+  //       if (err)
+  //         return res.status(400).json({
+  //           status: 400,
+  //           error: "Something went wrong, please try again.",
+  //         });
+
+  //       res.json(deletedUser);
+  //     });
+  //   });
+  // });
+  // } else {
+  //   db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
+  //     if (err)
+  //       return res.status(400).json({
+  //         status: 400,
+  //         error: "Something went wrong, please try again.",
+  //       });
+
+  //     res.json(deletedUser);
+  //   });
+  // }
+
   db.User.findByIdAndUpdate(
     req.params.userId,
     req.body,
@@ -58,14 +107,38 @@ const update = (req, res) => {
 };
 
 const destroy = (req, res) => {
-  db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
+  db.User.findById(req.params.userId, (err, foundUser) => {
     if (err)
       return res.status(400).json({
         status: 400,
         error: "Something went wrong, please try again.",
       });
 
-    res.json(deletedUser);
+    fs.unlink(foundUser.profilePic.imageData, (err) => {
+      if (err)
+        return res.status(400).json({
+          status: 400,
+          error: "Something went wrong, please try again.",
+        });
+    });
+
+    db.Image.findByIdAndDelete(foundUser.profilePic._id, (err) => {
+      if (err)
+        return res.status(400).json({
+          status: 400,
+          error: "Something went wrong, please try again.",
+        });
+
+      db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
+        if (err)
+          return res.status(400).json({
+            status: 400,
+            error: "Something went wrong, please try again.",
+          });
+
+        res.json(deletedUser);
+      });
+    });
   });
 };
 
