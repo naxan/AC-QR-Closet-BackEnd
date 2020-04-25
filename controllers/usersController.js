@@ -42,68 +42,86 @@ const create = (req, res) => {
 };
 
 const update = (req, res) => {
-  // if (req.body.profilePic) {
-  // db.User.findById(req.params.userId, (err, foundUser) => {
-  //   if (err)
-  //     return res.status(400).json({
-  //       status: 400,
-  //       error: "Something went wrong, please try again.",
-  //     });
-
-  //   fs.unlink(foundUser.profilePic.imageData, (err) => {
-  //     if (err)
-  //       return res.status(400).json({
-  //         status: 400,
-  //         error: "Something went wrong, please try again.",
-  //       });
-  //     console.log("picture unlinked");
-  //   });
-
-  //   db.Image.findByIdAndDelete(foundUser.profilePic._id, (err) => {
-  //     if (err)
-  //       return res.status(400).json({
-  //         status: 400,
-  //         error: "Something went wrong, please try again.",
-  //       });
-  //     console.log("picture deleted");
-
-  //     db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
-  //       if (err)
-  //         return res.status(400).json({
-  //           status: 400,
-  //           error: "Something went wrong, please try again.",
-  //         });
-
-  //       res.json(deletedUser);
-  //     });
-  //   });
-  // });
-  // } else {
-  //   db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
-  //     if (err)
-  //       return res.status(400).json({
-  //         status: 400,
-  //         error: "Something went wrong, please try again.",
-  //       });
-
-  //     res.json(deletedUser);
-  //   });
-  // }
-
-  db.User.findByIdAndUpdate(
-    req.params.userId,
-    req.body,
-    { new: true },
-    (err, updatedUser) => {
+  // check if update has new pro pic
+  if (req.body.profilePic) {
+    db.User.findById(req.params.userId, (err, foundUser) => {
       if (err)
         return res.status(400).json({
           status: 400,
           error: "Something went wrong, please try again.",
         });
 
-      res.json(updatedUser);
-    }
-  );
+      // check if user had previous pro pic and delete + unlink previous pic if so
+      if (foundUser.profilePic) {
+        fs.unlink(foundUser.profilePic.imageData, (err) => {
+          if (err)
+            return res.status(400).json({
+              status: 400,
+              error: "Something went wrong, please try again.",
+            });
+          console.log("picture unlinked");
+        });
+
+        db.Image.findByIdAndDelete(foundUser.profilePic._id, (err) => {
+          if (err)
+            return res.status(400).json({
+              status: 400,
+              error: "Something went wrong, please try again.",
+            });
+          console.log("picture deleted");
+
+          db.User.findByIdAndUpdate(
+            req.params.userId,
+            req.body,
+            { new: true },
+            (err, updatedUser) => {
+              if (err)
+                return res.status(400).json({
+                  status: 400,
+                  error: "Something went wrong, please try again.",
+                });
+
+              res.json(updatedUser);
+            }
+          );
+        });
+
+        // if user did not have previous pro pic, finish the update
+      } else {
+        db.User.findByIdAndUpdate(
+          req.params.userId,
+          req.body,
+          { new: true },
+          (err, updatedUser) => {
+            if (err)
+              return res.status(400).json({
+                status: 400,
+                error: "Something went wrong, please try again.",
+              });
+
+            res.json(updatedUser);
+          }
+        );
+      }
+    });
+
+    // if user did not add new pro pic, no need to check, just update info
+  } else {
+    db.User.findByIdAndUpdate(
+      req.params.userId,
+      req.body,
+      { new: true },
+      (err, updatedUser) => {
+        if (err)
+          return res.status(400).json({
+            status: 400,
+            error: "Something went wrong, please try again.",
+          });
+
+        res.json(updatedUser);
+      }
+    );
+  }
 };
 
 const destroy = (req, res) => {
