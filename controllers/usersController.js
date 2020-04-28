@@ -132,21 +132,36 @@ const destroy = (req, res) => {
         error: "Something went wrong, please try again.",
       });
 
-    fs.unlink(foundUser.profilePic.imageData, (err) => {
-      if (err)
-        return res.status(400).json({
-          status: 400,
-          error: "Something went wrong, please try again.",
-        });
-    });
+    // check if user has a profile pic uploaded
+    // if so, delete that pic
+    // if not, simply delete user
+    if (foundUser.profilePic) {
+      fs.unlink(foundUser.profilePic.imageData, (err) => {
+        if (err)
+          return res.status(400).json({
+            status: 400,
+            error: "Something went wrong, please try again.",
+          });
+      });
 
-    db.Image.findByIdAndDelete(foundUser.profilePic._id, (err) => {
-      if (err)
-        return res.status(400).json({
-          status: 400,
-          error: "Something went wrong, please try again.",
-        });
+      db.Image.findByIdAndDelete(foundUser.profilePic._id, (err) => {
+        if (err)
+          return res.status(400).json({
+            status: 400,
+            error: "Something went wrong, please try again.",
+          });
 
+        db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
+          if (err)
+            return res.status(400).json({
+              status: 400,
+              error: "Something went wrong, please try again.",
+            });
+
+          res.json(deletedUser);
+        });
+      });
+    } else {
       db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
         if (err)
           return res.status(400).json({
@@ -156,7 +171,7 @@ const destroy = (req, res) => {
 
         res.json(deletedUser);
       });
-    });
+    }
   });
 };
 
