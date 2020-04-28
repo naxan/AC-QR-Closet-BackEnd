@@ -1,5 +1,6 @@
 const db = require("../models");
 const fs = require("fs");
+const patternsController = require("./patternsController");
 
 const index = (req, res) => {
   db.User.find({})
@@ -125,7 +126,8 @@ const update = (req, res) => {
 };
 
 const destroy = (req, res) => {
-  db.User.findById(req.params.userId, (err, foundUser) => {
+  // delete user
+  db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
     if (err)
       return res.status(400).json({
         status: 400,
@@ -135,8 +137,8 @@ const destroy = (req, res) => {
     // check if user has a profile pic uploaded
     // if so, delete that pic
     // if not, simply delete user
-    if (foundUser.profilePic) {
-      fs.unlink(foundUser.profilePic.imageData, (err) => {
+    if (deletedUser.profilePic) {
+      fs.unlink(deletedUser.profilePic.imageData, (err) => {
         if (err)
           return res.status(400).json({
             status: 400,
@@ -144,34 +146,60 @@ const destroy = (req, res) => {
           });
       });
 
-      db.Image.findByIdAndDelete(foundUser.profilePic._id, (err) => {
+      db.Image.findByIdAndDelete(deletedUser.profilePic._id, (err) => {
         if (err)
           return res.status(400).json({
             status: 400,
             error: "Something went wrong, please try again.",
           });
+      });
+    }
 
-        db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
+    // map through user's patterns, delete patterns and their images
+    if (deletedUser.createdPatterns.length > 0) {
+      deletedUser.createdPatterns.map((patternId) => {
+        db.Pattern.findById(patternId, (err, foundPattern) => {
           if (err)
             return res.status(400).json({
               status: 400,
               error: "Something went wrong, please try again.",
             });
 
-          res.json(deletedUser);
-        });
-      });
-    } else {
-      db.User.findByIdAndDelete(req.params.userId, (err, deletedUser) => {
-        if (err)
-          return res.status(400).json({
-            status: 400,
-            error: "Something went wrong, please try again.",
+          // unlink images from patterns
+          fs.unlink(foundPattern.image.imageData, (err) => {
+            if (err)
+              return res.status(400).json({
+                status: 400,
+                error: "Something went wrong, please try again.",
+              });
+            console.log("image unlinked");
           });
 
-        res.json(deletedUser);
+          // delete image data from database
+          db.Image.findByIdAndDelete(foundPattern.image._id, (err) => {
+            if (err)
+              return res.status(400).json({
+                status: 400,
+                error: "Something went wrong, please try again.",
+              });
+            console.log("image deleted");
+          });
+
+          // now delete pattern
+          db.Pattern.findByIdAndDelete(patternId, (err) => {
+            if (err)
+              return res.status(400).json({
+                status: 400,
+                error: "Something went wrong, please try again.",
+              });
+            console.log("pattern deleted");
+          });
+        });
+        // end map
       });
-    }
+    } // end patterns if statement
+
+    res.json(deletedUser);
   });
 };
 
